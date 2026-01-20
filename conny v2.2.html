@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connys Pferdewelt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --magenta: #E6007E;
+            --navy: #0A192F;
+            --gold: #EAB308;
+            --white: #FAF9F6;
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Ermöglicht sanftes Scrollen bei Klick auf Nav-Links */
+        html { scroll-behavior: smooth; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            background-color: var(--navy);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Desktop Cursor --- */
+        #cursor {
+            width: 25px; height: 25px; border: 2px solid var(--magenta); border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 9999; transition: transform 0.15s ease-out;
+            display: none; mix-blend-mode: screen;
+        }
+        @media (min-width: 1024px) { #cursor { display: block; } body { cursor: none; } }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed; top: 25px; left: 50%; transform: translateX(-50%);
+            width: 95%; max-width: 1100px; padding: 10px 30px;
+            background: rgba(10, 25, 47, 0.85); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 100px;
+            display: flex; justify-content: space-between; align-items: center; z-index: 1000;
+        }
+        
+        .logo-nav {
+            height: 50px;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            mix-blend-mode: screen; 
+        }
+
+        .nav-link { color: var(--white); text-decoration: none; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; transition: 0.3s; }
+        .nav-link:hover { color: var(--magenta); }
+
+        /* --- Hero Section --- */
+        .hero {
+            position: relative; height: 100vh; width: 100%;
+            display: flex; align-items: center; padding: 0 8%;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute; top: 0; right: 0; width: 75%; height: 100%;
+            background: url('https://i.imgur.com/3JGjT6Y.jpg') center/cover no-repeat;
+            z-index: 0;
+            mask-image: linear-gradient(to left, rgba(0,0,0,1) 65%, rgba(0,0,0,0));
+            -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 65%, rgba(0,0,0,0));
+        }
+
+        .hero-content { position: relative; z-index: 2; max-width: 750px; }
+        .hero-content h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 8vw, 6rem); line-height: 0.95; margin-bottom: 2rem; }
+        .hero-content h1 span { display: block; color: transparent; -webkit-text-stroke: 1px var(--white); }
+        .hero-info { max-width: 480px; border-left: 2px solid var(--magenta); padding-left: 25px; margin-top: 2rem; font-size: 1.1rem; opacity: 0.9; }
+
+        /* --- HUD Cluster (Labels) --- */
+        .hud-container {
+            position: absolute; right: 15%; top: 45%; z-index: 3;
+            display: flex; flex-direction: column; gap: 15px; pointer-events: none;
+        }
+        .hud-label {
+            padding: 12px 20px; background: var(--glass);
+            backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+            border-radius: 50px; font-size: 0.7rem; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--magenta); font-weight: 600;
+            white-space: nowrap; animation: floatHud 5s ease-in-out infinite;
+        }
+        .hud-label:nth-child(2) { animation-delay: 2.5s; align-self: flex-end; margin-right: -40px; }
+
+        @keyframes floatHud { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-10px, -15px); } }
+
+        /* --- Sections --- */
+        .section { padding: 100px 8%; position: relative; z-index: 2; }
+        .about-grid { display: grid; grid-template-columns: 1fr; gap: 5rem; align-items: center; }
+        @media (min-width: 1024px) { .about-grid { grid-template-columns: 0.45fr 0.55fr; } }
+
+        .conny-portrait-box { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--glass-border); }
+        .conny-portrait { width: 100%; display: block; filter: saturate(0.8) contrast(1.1); transition: 1s; }
+
+        /* --- Info Cards --- */
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 4rem; }
+        .card {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            padding: 40px; border-radius: 24px; backdrop-filter: blur(20px);
+            transition: var(--transition);
+        }
+        .card:hover { border-color: var(--magenta); transform: translateY(-10px); background: rgba(230, 0, 126, 0.05); }
+        .card h3 { font-family: 'Playfair Display', serif; color: var(--magenta); font-size: 1.8rem; margin-bottom: 1.2rem; }
+
+        /* --- Contact --- */
+        .contact-cta { text-align: center; padding: 120px 8%; background: linear-gradient(to bottom, transparent, rgba(230, 0, 126, 0.05)); }
+        .contact-link { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 6vw, 4rem); color: var(--white); text-decoration: none; display: block; margin: 10px 0; transition: 0.4s; }
+        .contact-link:hover { color: var(--magenta); letter-spacing: 2px; }
+
+        /* --- Mobile Optimization --- */
+        @media (max-width: 768px) {
+            .hero { padding-top: 100px; text-align: center; }
+            .hero-bg { 
+                width: 100%; height: 60%; top: auto; bottom: 0;
+                mask-image: linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0));
+                -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0));
+                background-position: top center;
+            }
+            .hero-content { margin-bottom: 30vh; }
+            .hero-info { border-left: none; border-top: 1px solid var(--magenta); padding: 20px 0 0 0; margin: 2rem auto; }
+            .hud-container { bottom: 10%; right: 50%; transform: translateX(50%); flex-direction: row; gap: 10px; }
+            .hud-label { font-size: 0.5rem; padding: 8px 12px; }
+            nav { width: 95%; padding: 8px 15px; }
+            .nav-link { display: none; }
+            .nav-link:last-child { display: block; }
+        }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div id="cursor"></div>
+
+    <nav>
+        <img src="https://i.imgur.com/BK2U01c.png" alt="Logo" class="logo-nav">
+        <div style="display: flex; gap: 20px;">
+            <a href="#about" class="nav-link">Über mich</a>
+            <!-- FIX: Link zeigt nun auf id="offers" -->
+            <a href="#offers" class="nav-link">Angebote</a>
+            <a href="mailto:conny.bluemert@aon.at" class="nav-link" style="color: var(--magenta);">Kontakt</a>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-bg"></div>
+            
+            <div class="hud-container">
+                <div class="hud-label">● Dual-Aktivierung®</div>
+                <div class="hud-label">● Geitner Konzept</div>
+            </div>
+
+            <div class="hero-content">
+                <h1 class="reveal active">Harmonie & <span>Wissenschaft</span> im Training.</h1>
+                <div class="hero-info reveal active">
+                    <p>Individuelles Training für Muskelaufbau, Balance und Gelassenheit. Wissenschaftlich fundiert für jedes Pferd, in jedem Alter.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section">
+            <div class="about-grid">
+                <div class="conny-portrait-box reveal">
+                    <img src="https://i.imgur.com/8jssa1D.jpg" alt="Conny & Pferd" class="conny-portrait">
+                </div>
+                <div class="reveal">
+                    <h2 style="font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--magenta); margin-bottom: 2rem;">Hallo, ich bin Conny.</h2>
+                    <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">Ich selbst bin aufgrund immer wiederkehrender, unklarer Lahmheit meines eigenen Pferdes zum Geitner Training gelangt und seither mehr als begeistert von diesem Konzept.</p>
+                    <p style="opacity: 0.8; margin-bottom: 2rem;">Das blau-gelbe Training eignet sich für jedes Alter, jeden Trainings- oder Gesundheitszustand. Ohne zwingend notwendige Vorkenntnisse hat man die Möglichkeit, ein abwechslungsreiches und sehr effektives Training zu erlernen.</p>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <span style="border: 1px solid var(--magenta); color: var(--magenta); padding: 8px 18px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">EQUIKINETIC® TRAINER</span>
+                        <span style="border: 1px solid var(--magenta); color: var(--magenta); padding: 8px 18px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">LIZENZIERT</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery / Offers Section -->
+        <!-- FIX: ID "offers" hier hinzugefügt, damit der Nav-Button funktioniert -->
+        <section id="offers" class="section">
+            <div class="reveal">
+                <h2 style="font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 6vw, 4rem);">Präzision im <span>Detail.</span></h2>
+                <p style="max-width: 600px; opacity: 0.7; margin-top: 1rem;">Biomechanik und Rehatraining erfordern einen geschulten Blick. Jede Einheit ist auf die individuellen Bedürfnisse deines Pferdes abgestimmt.</p>
+            </div>
+            <div class="grid-container reveal">
+                <div class="card">
+                    <img src="https://i.imgur.com/o7Yblom.jpg" style="width: 100%; border-radius: 12px; margin-bottom: 1.5rem;">
+                    <h3>Analyse</h3>
+                    <p>Gezielte Beobachtung der Bewegungsabläufe als Basis für den Trainingsplan.</p>
+                </div>
+                <div class="card">
+                    <img src="https://i.imgur.com/hzjHHuW.jpg" style="width: 100%; border-radius: 12px; margin-bottom: 1.5rem;">
+                    <h3>Behandlung</h3>
+                    <p>Manuelle Unterstützung und Rehatraining zur Förderung der Regeneration.</p>
+                </div>
+                <div class="card">
+                    <img src="https://i.imgur.com/Nog3gf7.jpg" style="width: 100%; border-radius: 12px; margin-bottom: 1.5rem;">
+                    <h3>Training</h3>
+                    <p>Dual-Aktivierung® auf dem Platz – Konzentration durch blau-gelbe Reize.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact-cta reveal">
+            <p style="color: var(--magenta); text-transform: uppercase; letter-spacing: 3px; font-size: 0.8rem; margin-bottom: 2rem;">Lass uns gemeinsam trainieren</p>
+            <a href="tel:06644236141" class="contact-link">0664 - 423 61 41</a>
+            <a href="mailto:conny.bluemert@aon.at" class="contact-link">conny.bluemert@aon.at</a>
+            <div style="margin-top: 4rem;">
+                <a href="https://www.instagram.com/connys.pferdewelt/" target="_blank" style="color: var(--white); opacity: 0.5; text-decoration: none; border-bottom: 1px solid var(--magenta); padding-bottom: 5px; font-size: 0.9rem;">Instagram @connys.pferdewelt</a>
+            </div>
+        </section>
+    </main>
+
+    <footer style="padding: 60px 8%; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 3rem; font-size: 0.8rem; opacity: 0.4;">
+        <div style="background: white; padding: 10px; border-radius: 10px; height: 50px;">
+            <img src="https://i.imgur.com/BK2U01c.png" style="height: 100%; mix-blend-mode: multiply;">
+        </div>
+        <div>
+            <p style="font-weight: 600; color: var(--magenta); margin-bottom: 5px;">Region</p>
+            <p>2522 Oberwaltersdorf, Bezirk Baden, NÖ</p>
+        </div>
+        <div>
+            <p>© 2026 Connys Pferdewelt | Lizenziert</p>
+        </div>
+    </footer>
+
+    <script>
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        window.addEventListener('scroll', () => {
+            if (window.innerWidth > 768) {
+                const bg = document.querySelector('.hero-bg');
+                let offset = window.pageYOffset;
+                bg.style.backgroundPositionY = (offset * 0.4) + 'px';
+            }
+        });
+    </script>
+</body>
+</html>
